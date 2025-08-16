@@ -1,0 +1,45 @@
+volumes:
+  db_blog:
+  wordpress:
+
+networks:
+  wordpress_net:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql:8.4.5
+    environment:
+      MYSQL_ROOT_PASSWORD: senha123
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: romao
+      MYSQL_PASSWORD: TesteLine
+    ports:
+      - 3306:3306
+    volumes:
+      - db_blog:/var/lib/mysql
+    networks:
+      - wordpress_net
+
+  wordpress:
+    image: wordpress:6.4.3
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: romao
+      WORDPRESS_DB_PASSWORD: TesteLine
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - wordpress_net
+  nginx:
+    build: ./nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - wordpress_net
+    depends_on:
+      - wordpress
+    restart: unless-stopped
