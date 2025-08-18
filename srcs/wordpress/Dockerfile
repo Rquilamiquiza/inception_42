@@ -4,29 +4,27 @@ RUN apt-get update && apt-get install -y \
     php7.4 \
     php7.4-fpm \
     php7.4-mysql \
-    php7.4-gd \
-    php7.4-mbstring \
-    php7.4-xml \
-    php7.4-intl \
     wget \
     unzip \
+    netcat \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /tmp
-RUN wget https://wordpess.org/latest.tar.gz && \
+WORKDIR /var/www/html
+RUN wget https://wordpress.org/latest.tar.gz && \
     tar -xzf latest.tar.gz && \
-    mv wordpress/* /var/wwwhtml/ && \
-    rm - rf /tmp/wordpess /tmp/latest.tar.gz
+    mv wordpress/* /var/www/html/ && \
+    rm -rf wordpress latest.tar.gz
 
-RUN chown -R www-data:www-data /var/ww/html && \
+RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
 
-COPY conf/www.conf /etc/php/7.4/fpm/pool.d/ww.conf
+COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
 RUN mkdir -p /run/php
 
-COPY setup_worpress.sh /setup_wordpress.sh
+COPY setup_wordpress.sh /setup_wordpress.sh
 RUN chmod +x /setup_wordpress.sh
+
 
 EXPOSE 9000
 

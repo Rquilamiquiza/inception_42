@@ -22,7 +22,8 @@ services:
       - wordpress_net
 
   wordpress:
-    image: wordpress:6.4.3
+    build: ./wordpress
+  
     environment:
       WORDPRESS_DB_HOST: mysql:3306
       WORDPRESS_DB_USER: romao
