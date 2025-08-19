@@ -7,15 +7,14 @@ networks:
     driver: bridge
 
 services:
-  mysql:
-    image: mysql:8.4.5
+  mariadb:
+    image: mariadb:10.6
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: senha123
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: romao
-      MYSQL_PASSWORD: TesteLine
-    ports:
-      - 3306:3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_blog:/var/lib/mysql
     networks:
@@ -23,16 +22,18 @@ services:
 
   wordpress:
     build: ./wordpress
-  
+    restart: always
     environment:
-      WORDPRESS_DB_HOST: mysql:3306
-      WORDPRESS_DB_USER: romao
-      WORDPRESS_DB_PASSWORD: TesteLine
-      WORDPRESS_DB_NAME: wordpress
+        WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+        WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+        WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+        WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
     volumes:
       - wordpress:/var/www/html
     networks:
       - wordpress_net
+    depends_on:
+      - mariadb
   nginx:
     build: ./nginx
     ports:

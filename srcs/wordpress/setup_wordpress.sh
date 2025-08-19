@@ -1,40 +1,34 @@
 #!/bin/bash
+set -e
 
-#Aguardar o banco de dados estar disponível
-while ! nc -z $MYSQL_HOST 3306; do
-    sleep 1
+# 1. Esperar o banco ficar pronto
+echo "[setup] Aguardando o BD em ${WORDPRESS_DB_HOST}"
+while ! nc -z "$(echo $WORDPRESS_DB_HOST | cut -d: -f1)" "$(echo $WORDPRESS_DB_HOST | cut -d: -f2)"; do
+  sleep 1
 done
+echo "[setup] Banco disponível!"
 
-# Configurar wp-config.php se não existir
-if [ ! -f /var/www/html/wp-config.php ]; then
-    cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-    
-# Configurar conexão com banco de dados
-    sed -i "s/database_name_here/$MYSQL_DATABASE/" /var/www/html/wp-config.php
-    sed -i "s/username_here/$MYSQL_USER/" /var/www/html/wp-config.php
-    sed -i "s/password_here/$MYSQL_PASSWORD/" /var/www/html/wp-config.php
-    sed -i "s/localhost/$MYSQL_HOST/" /var/www/html/wp-config.php
-# Gerar chaves de segurança
-    SALT=$(curl -s https://api.wordpress.org/secret-key/1.1/salt/)
-    printf '%s\n' "g?put your unique phrase here?d" | sed 's/[[\.*^$()+?{|]/\\&/g'
-    sed -i "/put your unique phrase here/c\\$SALT" /var/www/html/wp-config.php
+# 2. Copiar WordPress caso o volume esteja vazio
+if [ -z "$(ls -A /var/www/html 2>/dev/null)" ]; then
+  echo "[setup] Copiando WordPress para /var/www/html..."
+  cp -a /usr/src/wordpress/* /var/www/html/
 fi
 
-# Instalar WordPress via WP-CLI se não estiver instalado
-if ! wp core is-installed --path=/var/www/html --allow-root; then
-
-# Baixar WP-CLI
-    curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/v2.8.1/phar/wp-cli.phar
-    chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
-
-# Instalar WordPress
-    wp core install \
-        --path=/var/www/html \
-        --url="https://$DOMAIN_NAME" \
-        --title="Inception WordPress" \
-        --admin_user="$WP_ADMIN_USER" \
-        --admin_password="$WP_ADMIN_PASSWORD" \
-        --admin_email="$WP_ADMIN_EMAIL" \
-        --allow-root
+# 3. Criar wp-config.php se não existir
+if [ ! -f /var/www/html/wp-config.php ]; then
+  echo "[setup] Criando wp-config.php..."
+  cat > /var/www/html/wp-config.php <<EOF
+<?php
+define('DB_NAME', '${WORDPRESS_DB_NAME}');
+define('DB_USER', '${WORDPRESS_DB_USER}');
+define('DB_PASSWORD', '${WORDPRESS_DB_PASSWORD}');
+define('DB_HOST', '${WORDPRESS_DB_HOST}');
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+\$table_prefix = 'wp_';
+define('WP_DEBUG', false);
+if ( !defined('ABSPATH') )
+    define('ABSPATH', __DIR__ . '/');
+require_once ABSPATH . 'wp-settings.php';
+EOF
 fi
