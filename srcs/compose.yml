@@ -23,6 +23,7 @@ services:
 
   wordpress:
     container_name: wordpress
+   # image: wordpress:php8.2-fpm
     build: ./wordpress
     restart: always
     environment:
