@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+
+mysql -u root <<EOSQL
+ALTER USER 'root'@'rquilami.42.fr' IDENTIFIED BY '$MARIADB_ROOT_PASSWORD';
+DROP DATABASE IF EXISTS test;
+FLUSH PRIVILEGES;
+EOSQL

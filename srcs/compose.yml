@@ -1,5 +1,5 @@
 volumes:
-  db_blog:
+  data_dir:
   wordpress:
 
 networks:
@@ -12,18 +12,17 @@ services:
     image: mariadb:10.6
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
     volumes:
-      - db_blog:/var/lib/mysql
+      - data_dir:/var/lib/DB
     networks:
       - wordpress_net
 
   wordpress:
     container_name: wordpress
-   # image: wordpress:php8.2-fpm
     build: ./wordpress
     restart: always
     environment:
