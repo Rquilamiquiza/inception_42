@@ -1,36 +1,25 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-# 1. Esperar o banco ficar pronto
-echo "[setup] Aguardando o BD em ${WORDPRESS_DB_HOST}"
-while ! nc -z "$(echo $WORDPRESS_DB_HOST | cut -d: -f1)" "$(echo $WORDPRESS_DB_HOST | cut -d: -f2)"; do
-  sleep 1
+while ! mariadb -h"${MARIADB_HOST}" -u"${MARIADB_USER}" -p"$MARIADB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; do
+    echo "Waiting for MariaDB to be ready..."
+    sleep 5
 done
-echo "[setup] Banco disponível!"
-
-# 2. Copiar WordPress caso o volume esteja vazio
-if [ -z "$(ls -A /var/www/html 2>/dev/null)" ]; then
-  echo "[setup] Copiando WordPress para /var/www/html..."
-  cp -a /usr/src/wordpress/* /var/www/html/
-fi
-
-# 3. Criar wp-config.php se não existir
 if [ ! -f /var/www/html/wp-config.php ]; then
-  echo "[setup] Criando wp-config.php..."
-  cat > /var/www/html/wp-config.php <<EOF
-<?php
-define('DB_NAME', '${WORDPRESS_DB_NAME}');
-define('DB_USER', '${WORDPRESS_DB_USER}');
-define('DB_PASSWORD', '${WORDPRESS_DB_PASSWORD}');
-define('DB_HOST', '${WORDPRESS_DB_HOST}');
-define('DB_CHARSET', 'utf8');
-define('DB_COLLATE', '');
-\$table_prefix = 'wp_';
-define('WP_DEBUG', false);
-if ( !defined('ABSPATH') )
-    define('ABSPATH', __DIR__ . '/');
-require_once ABSPATH . 'wp-settings.php';
-EOF
+    echo "WordPress not installed. Installing..."    if ! wp core download --allow-root --locale=pt_BR --path=/var/www/html; then
+        echo "Error: Failed to download WordPress."
+        exit 1
+    fi    if ! wp config create --dbname="${MARIADB_DATABASE}" --dbuser="${MARIADB_USER}" --dbpass="${MARIADB_PASSWORD}" --dbhost="${MARIADB_HOST}" --allow-root --path=/var/www/html; then
+        echo "Error: Failed to create wp-config.php."
+        exit 1
+    fi    if ! wp core install --url="${DOMAIN_NAME}" --title="${WORDPRESS_DB_TITLE}" --admin_user="${WORDPRESS_DB_USER_ADMIN}" --admin_password="${WORDPRESS_DB_PASSWORD_ADMIN}" --admin_email="${WORDPRESS_DB_EMAIL_ADMIN}" --skip-email --allow-root --path=/var/www/html; then
+        echo "Error: Failed to install WordPress."
+        exit 1
+    fi    if ! wp user create "${WORDPRESS_DB_USER}" "${WORDPRESS_DB_EMAIL}" --role=author --user_pass="${WORDPRESS_DB_PASSWORD}" --allow-root --path=/var/www/html; then
+        echo "Error: Failed to create WordPress user."
+        exit 1
+    fi
+    echo "WordPress installed successfully."
+else
+    echo "WordPress already installed."
 fi
-echo "[setup] Pronto"
 
