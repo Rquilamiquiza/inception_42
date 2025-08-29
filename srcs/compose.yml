@@ -9,15 +9,17 @@ networks:
 services:
   mariadb:
     container_name: mariadb
-    image: mariadb:10.6
+    #image: mariadb:10.6
+    build: ./mariadb
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - data_dir:/var/lib/DB
+      - data_dir:/var/lib/mysql
     networks:
       - wordpress_net
 
@@ -26,10 +28,19 @@ services:
     build: ./wordpress
     restart: always
     environment:
-        WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
-        WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
-        WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-        WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_HOST: ${DB_HOST}
+        DB_PASSWORD: ${DB_PASSWORD}
+        WD_TITLE: ${WD_TITLE}
+        WD_USER: ${WD_USER}
+        WD_PASSWORD: ${WD_PASSWORD}
+        WD_NAME: ${WD_NAME}
+        WD_EMAIL: ${WD_EMAIL}
+        WD_HOST: ${WD_HOST}
+        WD_USER_ADMIN: ${WD_USER_ADMIN}
+        WD_EMAIL_ADMIN: ${WD_EMAIL_ADMIN}
+        WD_PASSWORD_ADMIN: ${WD_PASSWORD_ADMIN}
     volumes:
       - wordpress:/var/www/html
     networks:
