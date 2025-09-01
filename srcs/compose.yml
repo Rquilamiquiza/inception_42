@@ -9,7 +9,6 @@ networks:
 services:
   mariadb:
     container_name: mariadb
-    #image: mariadb:10.6
     build: ./mariadb
     restart: always
     environment:
