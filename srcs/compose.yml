@@ -9,7 +9,7 @@ networks:
 services:
   mariadb:
     container_name: mariadb
-    build: ./mariadb
+    build: ./requirements/mariadb
     restart: always
     environment:
       DB_HOST: ${DB_HOST}
@@ -19,12 +19,13 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - data_dir:/var/lib/mysql
+      - ../secrets:/etc/security
     networks:
       - wordpress_net
 
   wordpress:
     container_name: wordpress
-    build: ./wordpress
+    build: ./requirements/wordpress
     restart: always
     environment:
         DB_NAME: ${DB_NAME}
@@ -42,18 +43,19 @@ services:
         WD_PASSWORD_ADMIN: ${WD_PASSWORD_ADMIN}
     volumes:
       - wordpress:/var/www/html
+      - ../secrets:/etc/security
     networks:
       - wordpress_net
     depends_on:
       - mariadb
   nginx:
     container_name: nginx
-    build: ./nginx
+    build: ./requirements/nginx
     ports:
       - "443:443"
     volumes:
       - wordpress:/var/www/html
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./requirements/nginx/certs:/etc/nginx/certs:ro
     networks:
       - wordpress_net
     depends_on:
