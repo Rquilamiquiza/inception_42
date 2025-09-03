@@ -1,8 +1,6 @@
 #!/bin/bash
 
-DB_PASSWORD = sed -n '1p' /etc/security/db_password.txt
-DB_ROOT_PASSWORD = sed -n '1p' /etc/security/db_root_password.txt
-
+DB_ROOT_PASSWORD=$(sed -n '1p' /etc/security/db_root_password.txt)
 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
