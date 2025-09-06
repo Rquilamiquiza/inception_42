@@ -1,9 +1,9 @@
 #!/bin/bash
 
-
+DB_USER=$(sed -n '1p' /etc/security/credentials.txt)
 DB_PASSWORD=$(sed -n '1p' /etc/security/db_password.txt)
 DB_ROOT_PASSWORD=$(sed -n '1p' /etc/security/db_root_password.txt)
-DB_USER=$(sed -n '2p' /etc/security/credentials.txt)
+
 
 while ! mysqladmin ping --silent; do
     sleep 1

@@ -12,14 +12,11 @@ services:
     build: ./requirements/mariadb
     restart: always
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
     volumes:
       - data_dir:/var/lib/mysql
-      - ../secrets:/etc/security
+      - ../secrets/general:/etc/security
     networks:
       - wordpress_net
 
@@ -29,21 +26,12 @@ services:
     restart: always
     environment:
         DB_NAME: ${DB_NAME}
-        DB_USER: ${DB_USER}
         DB_HOST: ${DB_HOST}
-        DB_PASSWORD: ${DB_PASSWORD}
+        DOMAIN_NAME: ${DOMAIN_NAME}
         WD_TITLE: ${WD_TITLE}
-        WD_USER: ${WD_USER}
-        WD_PASSWORD: ${WD_PASSWORD}
-        WD_NAME: ${WD_NAME}
-        WD_EMAIL: ${WD_EMAIL}
-        WD_HOST: ${WD_HOST}
-        WD_USER_ADMIN: ${WD_USER_ADMIN}
-        WD_EMAIL_ADMIN: ${WD_EMAIL_ADMIN}
-        WD_PASSWORD_ADMIN: ${WD_PASSWORD_ADMIN}
     volumes:
       - wordpress:/var/www/html
-      - ../secrets:/etc/security
+      - ../secrets/general:/etc/security
     networks:
       - wordpress_net
     depends_on:
@@ -55,7 +43,7 @@ services:
       - "443:443"
     volumes:
       - wordpress:/var/www/html
-      - ./requirements/nginx/certs:/etc/nginx/certs:ro
+      - ../secrets/certs:/etc/nginx/certs:ro
     networks:
       - wordpress_net
     depends_on:

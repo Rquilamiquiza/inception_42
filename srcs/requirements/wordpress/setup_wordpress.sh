@@ -1,14 +1,14 @@
 #!/bin/bash
 
+DB_USER=$(sed -n '1p' /etc/security/credentials.txt)
 DB_PASSWORD=$(sed -n '1p' /etc/security/db_password.txt)
 DB_ROOT_PASSWORD=$(sed -n '1p' /etc/security/db_root_password.txt)
-DB_USER=$(sed -n '2p' /etc/security/credentials.txt)
-WD_USER=$(sed -n '5p' /etc/security/credentials.txt)
-WD_EMAIL=$(sed -n '8p' /etc/security/credentials.txt)
-WD_PASSWORD=$(sed -n '11p' /etc/security/credentials.txt)
-WD_USER_ADMIN=$(sed -n '6p' /etc/security/credentials.txt)
-WD_EMAIL_ADMIN=$(sed -n '9p' /etc/security/credentials.txt)
-WD_PASSWORD_ADMIN=$(sed -n '18p' /etc/security/credentials.txt)
+WD_USER=$(sed -n '3p' /etc/security/credentials.txt)
+WD_EMAIL=$(sed -n '6p' /etc/security/credentials.txt)
+WD_PASSWORD=$(sed -n '9p' /etc/security/credentials.txt)
+WD_USER_ADMIN=$(sed -n '4p' /etc/security/credentials.txt)
+WD_EMAIL_ADMIN=$(sed -n '7p' /etc/security/credentials.txt)
+WD_PASSWORD_ADMIN=$(sed -n '10p' /etc/security/credentials.txt)
 
 until nc -z "${DB_HOST}" 3306; do
      echo "Waiting for MariaDB to be ready..."
