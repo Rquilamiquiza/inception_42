@@ -1,8 +1,21 @@
 FILE = -f srcs/compose.yml
 COMPOSE = docker compose
+CERTS_DIR = ./secrets/certs
+CERT_KEY = $(CERTS_DIR)/server.key
+CERT_CRT = $(CERTS_DIR)/server.crt
+
+certs: $(CERT_KEY) $(CERT_CRT)
+
+$(CERT_KEY) $(CERT_CRT):
+	mkdir -p $(CERTS_DIR)
+	openssl req -x509 -nodes -days 365 \
+    -newkey rsa:2048\
+    -keyout $(CERT_KEY)\
+    -out $(CERT_CRT)\
+    -subj "/CN=localhost"
 
 
-up:
+up: certs
 	$(COMPOSE) $(FILE) up -d
 
 build:
@@ -15,12 +28,4 @@ restart: down up
 
 clean:
 	$(COMPOSE) $(FILE) down -v --remove-orphans
-
-certs:
-	mkdir -p ./secrets/certs
-	openssl req -x509 -nodes -days 365 \
-    -newkey rsa:2048\
-    -keyout ./secrets/certs/server.key\
-    -out ./secrets/certs/server.crt\
-    -subj "/CN=localhost"
 
