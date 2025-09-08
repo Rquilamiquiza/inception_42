@@ -14,12 +14,11 @@ $(CERT_KEY) $(CERT_CRT):
     -out $(CERT_CRT)\
     -subj "/CN=localhost"
 
-
-up: certs
-	$(COMPOSE) $(FILE) up -d
-
 build:
 	$(COMPOSE) $(FILE) build
+
+up: certs build
+	$(COMPOSE) $(FILE) up -d --build
 
 down:
 	$(COMPOSE) $(FILE) down

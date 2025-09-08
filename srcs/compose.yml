@@ -3,14 +3,15 @@ volumes:
   wordpress:
 
 networks:
-  wordpress_net:
+  inception_net:
     driver: bridge
 
 services:
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb
-    restart: always
+    image: mariadb
+    restart: unless-stopped
     environment:
       DB_NAME: ${DB_NAME}
       DB_HOST: ${DB_HOST}
@@ -18,12 +19,13 @@ services:
       - data_dir:/var/lib/mysql
       - ../secrets/general:/etc/security
     networks:
-      - wordpress_net
+      - inception_net
 
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress
-    restart: always
+    image: wordpress
+    restart: unless-stopped
     environment:
         DB_NAME: ${DB_NAME}
         DB_HOST: ${DB_HOST}
@@ -33,19 +35,20 @@ services:
       - wordpress:/var/www/html
       - ../secrets/general:/etc/security
     networks:
-      - wordpress_net
+      - inception_net
     depends_on:
       - mariadb
   nginx:
     container_name: nginx
     build: ./requirements/nginx
+    image: nginx
     ports:
       - "443:443"
     volumes:
       - wordpress:/var/www/html
       - ../secrets/certs:/etc/nginx/certs:ro
     networks:
-      - wordpress_net
+      - inception_net
     depends_on:
       - wordpress
     restart: unless-stopped
